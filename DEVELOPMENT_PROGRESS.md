@@ -69,3 +69,12 @@
 - Only one physical monitor available. Other scale levels have sizing tests only; cross-monitor transitions remain unverified.
 - Full report: docs/DPI_FIX_REPORT.md. The earlier note about unverified font rendering is superseded by this native capture and UIA check.
 
+
+
+## 2026-11-11 size reduction
+- Replaced the bundled full Temurin JRE with a jlink image built from the same-version pinned and verified Temurin JDK. The published Java image is about 109 MiB instead of about 145 MiB.
+- Real EPUBCheck 5.3.0 validation and application batch UI TXT/JSON/EPUB conversion passed with the smaller Java image.
+- The Windows App SDK dependency-narrowing experiment saved only about 2 MiB and left AI binaries present, so it was reverted.
+- Earlier size figures and JRE source notes refer to the prior verification build; the current build provenance is in TECHNICAL_VALIDATION.md.
+
+- Final package uses Inno Setup LZMA2 ultra64. Compared with the previous 165,792,578-byte installer, the candidate shrank to about 129 MB while preserving the offline EPUB workflow. See docs/SIZE_OPTIMIZATION.md.

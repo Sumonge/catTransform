@@ -1,4 +1,4 @@
-#define AppVersion "0.1.0"
+﻿#define AppVersion "0.1.1"
 [Setup]
 AppId={{AA7D681C-705F-4D67-B9B2-AB4E53C3B230}
 AppName=catTransform
@@ -11,8 +11,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.22000
 OutputDir=..\artifacts\installer
-OutputBaseFilename=catTransform-0.1.0-win-x64
-Compression=lzma2/fast
+OutputBaseFilename=catTransform-0.1.1-win-x64
+Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\catTransform.exe
@@ -29,3 +29,4 @@ Filename: "{app}\catTransform.exe"; Description: "启动 catTransform"; Flags: n
 ; Intentionally empty: never remove user Output, database, rules, or backups.
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "catTransform"; Flags: uninsdeletevalue
+

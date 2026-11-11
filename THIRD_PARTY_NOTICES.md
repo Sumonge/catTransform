@@ -40,7 +40,7 @@
 EPUBCheck 5.3.0：BSD-3-Clause，参见随附 EPUBCheck LICENSE 及其依赖声明。
 Inno Setup 6.7.4：仅构建工具，许可证见 tools/InnoSetup/；不作为程序运行依赖。
 
-Eclipse Temurin 21.0.13+9: GPL-2.0 WITH Classpath-exception-2.0. Full legal/ and NOTICE are retained under runtime/java/.
+Eclipse Temurin 21.0.13+9: GPL-2.0 WITH Classpath-exception-2.0. The bundled Java runtime is produced with jlink from the verified Temurin JDK. The legal/ directory and NOTICE for included modules are retained under runtime/java/.
 Upstream binaries and source provenance: https://github.com/adoptium/temurin21-binaries/releases/tag/jdk-21.0.13%2B9
 EPUBCheck licenses and third-party notices are retained under runtime/epubcheck/.
 LXGW WenKai Mono Light: bundled user-provided LXGWWenKaiMono-Light.ttf. SIL Open Font License 1.1; see docs/licenses/LXGWWenKai-OFL.txt. Upstream: https://github.com/lxgw/LxgwWenKai

@@ -36,3 +36,7 @@ ZIP SHA-256：`2332c0b4cff6bed722da3567c91d5e47568bcba863fa4945d0a8d6fc76158628`
 - EPUB 字体混淆和 DRM 都拒绝；不绕过加密。
 - OpenCC 不受信任实例并发重配置不允许；封装不暴露实例。
 - 不承诺抵抗同账户恶意程序对输出目录实施重解析点竞争；正常链接输入被拒绝。
+
+
+## 2026-11-11 Java runtime size reduction
+The earlier full-JRE description above records the previous verification build. The current release preparation uses pinned Temurin JDK 21.0.13+9 (SHA-256 a4dbaa05fca4bd89d84584e58c459bd732efebb1722af80ab13c6516832004f9) and jlink to build a minimal Java image. Full EPUBCheck 5.3.0, its dependency JARs, and Java legal/NOTICE remain bundled. The pinned JDK metadata is tools/temurin-jdk-runtime.json. A real EPUB fixture passed direct EPUBCheck and the application batch UI conversion with this image.
