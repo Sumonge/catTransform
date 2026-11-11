@@ -14,7 +14,11 @@ try {
  Copy-Item docs -Destination artifacts/release -Recurse -Force
  $compiler = Join-Path $projectRoot 'tools/InnoSetup/ISCC.exe'
  if (Test-Path -LiteralPath $compiler) {
-  & $compiler installer/catTransform.iss
-  if ($LASTEXITCODE -ne 0) { throw 'Installer compile failed' }
+  & $compiler /Q installer/catTransform.iss
+  if ($LASTEXITCODE -ne 0) { throw 'Full installer compile failed' }
+  & $compiler /Q /DLite=1 installer/catTransform.iss
+  if ($LASTEXITCODE -ne 0) { throw 'Lite installer compile failed' }
+  & $compiler /Q installer/epub-addon.iss
+  if ($LASTEXITCODE -ne 0) { throw 'EPUB addon compile failed' }
  } else { Write-Warning 'ISCC.exe missing. Publish folder built; installer not built.' }
 } finally { Pop-Location }

@@ -35,7 +35,8 @@ public sealed class TextConverter : ITextConverter {
  }
  public void Validate(ConversionOptions o) {
   if(o.Scope is null||o.Rules is null||o.Scope.CsvInclude is null||o.Scope.CsvExclude is null||o.Scope.JsonPaths is null)throw new ArgumentException("范围或规则配置不能为空");
-  if(o.Formats is null||o.Formats.Any(f=>f is not ("txt" or "md" or "srt" or "ass" or "csv" or "json" or "docx" or "epub")))throw new ArgumentException("文件格式范围无效");
+  if(o.Formats is null||o.Formats.Any(f=>f is not ("txt" or "md" or "srt" or "ass" or "csv" or "json" or "docx" or "epub" or "pdf")))throw new ArgumentException("文件格式范围无效");
+  if(!Enum.IsDefined(o.PdfOutput))throw new ArgumentException("PDF 输出格式无效");
   if(o.Scope.CsvDelimiter is null||o.Scope.CsvDelimiter.Length!=1||o.Scope.CsvDelimiter[0] is '\r' or '\n' or '"')throw new ArgumentException("CSV 分隔符无效");
   if(o.Scope.CsvInclude.Concat(o.Scope.CsvExclude).Any(i=>i<0))throw new ArgumentException("CSV 列号不能为负数");
   if(o.Scope.JsonPaths.Any(p=>p is null||p.Length>2048||p.Length>0&&!p.StartsWith('/')))throw new ArgumentException("JSON 路径必须使用 JSON Pointer");

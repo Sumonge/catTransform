@@ -187,6 +187,11 @@
           "ZstdSharp.Port": "0.8.8"
         }
       },
+      "PdfPig": {
+        "type": "Transitive",
+        "resolved": "0.1.16",
+        "contentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA=="
+      },
       "SQLite": {
         "type": "Transitive",
         "resolved": "3.53.4",
@@ -224,8 +229,8 @@
       },
       "System.Formats.Cbor": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "pOFOuygoSX5Tj82uaDTFQ8ipVOKJWSZtgSdR/uCvvXtnV5z6UbbUWFsaQ/8sBerEstvVjX1DyPcVM7ua7GWHqw=="
+        "resolved": "8.0.2",
+        "contentHash": "C7D+Z/Pt2McSFp2bHKZQW/37kjVFZ1mTqGn2u6MME/XCgXNaSquCRW1/FD7w/AqpT+H6q32kzUevDJFsmCCsGw=="
       },
       "System.IO.Packaging": {
         "type": "Transitive",
@@ -245,14 +250,15 @@
       "cattransform.application": {
         "type": "Project",
         "dependencies": {
-          "CatTransform.Core": "[0.1.0, )"
+          "CatTransform.Core": "[0.2.0, )"
         }
       },
       "cattransform.conversion": {
         "type": "Project",
         "dependencies": {
-          "CatTransform.Core": "[0.1.0, )",
-          "OpenccNetLib": "[1.7.0, )"
+          "CatTransform.Core": "[0.2.0, )",
+          "OpenccNetLib": "[1.7.0, )",
+          "System.Formats.Cbor": "[8.0.2, )"
         }
       },
       "cattransform.core": {
@@ -261,16 +267,17 @@
       "cattransform.documents": {
         "type": "Project",
         "dependencies": {
-          "CatTransform.Core": "[0.1.0, )",
+          "CatTransform.Core": "[0.2.0, )",
           "CsvHelper": "[33.1.0, )",
           "DocumentFormat.OpenXml": "[3.3.0, )",
-          "Markdig": "[0.41.3, )"
+          "Markdig": "[0.41.3, )",
+          "PdfPig": "[0.1.16, )"
         }
       },
       "cattransform.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "CatTransform.Core": "[0.1.0, )",
+          "CatTransform.Core": "[0.2.0, )",
           "Microsoft.Data.Sqlite": "[10.0.12, )",
           "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )"
         }

@@ -38,7 +38,7 @@ public sealed class BatchService(ITextConverter text,IDocumentConverter document
  public bool IsRunning {get;private set;}
  private readonly HashSet<string> paths=new(StringComparer.OrdinalIgnoreCase);
  private CancellationTokenSource? cancellation;
- public static readonly string[] Extensions=[".txt",".md",".srt",".ass",".csv",".json",".docx",".epub"];
+ public static readonly string[] Extensions=[".txt",".md",".srt",".ass",".csv",".json",".docx",".epub",".pdf"];
  public int Add(IEnumerable<string> inputs,string output){int count=0;
   foreach(var path in inputs){SafePaths.RejectLinks(path);
    if(Directory.Exists(path)){var root=SafePaths.Normalize(path);if(SafePaths.IsWithin(root,output))continue;
@@ -65,7 +65,8 @@ public sealed class BatchService(ITextConverter text,IDocumentConverter document
   try{await Task.WhenAll(pending.Select(async job=>{
    var started=DateTimeOffset.UtcNow;bool acquired=false;JobState state=JobState.Cancelled;string? output=null;string? error=null;
    try{ct.ThrowIfCancellationRequested();if(!frozen.Formats.Contains(Path.GetExtension(job.SourcePath).TrimStart('.').ToLowerInvariant())){state=JobState.Skipped;}else{await gate.WaitAsync(ct);acquired=true;await OnUi(()=>job.State=JobState.Running);
-    output=await Task.Run(()=>safe.WriteAsync(job.SourcePath,job.RelativePath,frozen.OutputDirectory,p=>documents.ConvertAsync(job.SourcePath,p,frozen,ct),ct),ct);state=JobState.Succeeded;}
+    var relative=Path.GetExtension(job.SourcePath).Equals(".pdf",StringComparison.OrdinalIgnoreCase)&&frozen.PdfOutput==PdfOutputKind.Text?Path.ChangeExtension(job.RelativePath,".txt"):job.RelativePath;
+    output=await Task.Run(()=>safe.WriteAsync(job.SourcePath,relative,frozen.OutputDirectory,p=>documents.ConvertAsync(job.SourcePath,p,frozen,ct),ct),ct);state=JobState.Succeeded;}
    }catch(OperationCanceledException){state=JobState.Cancelled;}
    catch(Exception e){state=JobState.Failed;error=SafeError(e);}
    finally{if(acquired)gate.Release();}

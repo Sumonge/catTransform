@@ -13,9 +13,10 @@
         }
       },
       "System.Formats.Cbor": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "pOFOuygoSX5Tj82uaDTFQ8ipVOKJWSZtgSdR/uCvvXtnV5z6UbbUWFsaQ/8sBerEstvVjX1DyPcVM7ua7GWHqw=="
+        "type": "Direct",
+        "requested": "[8.0.2, )",
+        "resolved": "8.0.2",
+        "contentHash": "C7D+Z/Pt2McSFp2bHKZQW/37kjVFZ1mTqGn2u6MME/XCgXNaSquCRW1/FD7w/AqpT+H6q32kzUevDJFsmCCsGw=="
       },
       "ZstdSharp.Port": {
         "type": "Transitive",
