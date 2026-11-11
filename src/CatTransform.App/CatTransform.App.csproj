@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows10.0.26100.0</TargetFramework><TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion><UseWinUI>true</UseWinUI><WindowsPackageType>None</WindowsPackageType><WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier><PlatformTarget>x64</PlatformTarget><ApplicationManifest>app.manifest</ApplicationManifest><AssemblyName>catTransform</AssemblyName></PropertyGroup>
+ <ItemGroup><PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001"/><PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0"/><PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/><ProjectReference Include="../CatTransform.Application/CatTransform.Application.csproj"/><ProjectReference Include="../CatTransform.Conversion/CatTransform.Conversion.csproj"/><ProjectReference Include="../CatTransform.Documents/CatTransform.Documents.csproj"/><ProjectReference Include="../CatTransform.Infrastructure/CatTransform.Infrastructure.csproj"/></ItemGroup>
+ <PropertyGroup><ApplicationIcon>Assets/catTransform.ico</ApplicationIcon></PropertyGroup>
+ <ItemGroup><Content Update="Assets/catTransform.ico" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
+ <ItemGroup><Content Include="../../LXGWWenKaiMono-Light.ttf" Link="Assets/Fonts/LXGWWenKaiMono-Light.ttf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/></ItemGroup>
+ <Target Name="EnsurePublishedApplicationPri" AfterTargets="Publish">
+  <Error Condition="!Exists('$(TargetDir)$(AssemblyName).pri')" Text="Application PRI resource index is missing; refusing incomplete publish."/>
+  <Copy SourceFiles="$(TargetDir)$(AssemblyName).pri" DestinationFolder="$(PublishDir)"/>
+ </Target>
+</Project>

@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+.vs/
+artifacts/
+tools/epubcheck/
+tools/pythonlibs/
+tools/InnoSetup/
+*.user
+
+**/__pycache__/
+*.pyc
+.env
+.env.*
+*.pfx
+*.pem
