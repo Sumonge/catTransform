@@ -27,12 +27,13 @@
 |Microsoft.WindowsAppSDK.WinUI|1.8.260803003|license.txt|
 |Microsoft.WindowsAppSDK|1.8.260921001|license.txt|
 |OpenccNetLib|1.7.0|MIT|
+|PdfPig|0.1.16|Apache-2.0|
 |SQLite|3.53.4|LICENSE.txt|
 |SQLitePCLRaw.bundle_e_sqlite3|3.0.5|Apache-2.0|
 |SQLitePCLRaw.config.e_sqlite3|3.0.5|Apache-2.0|
 |SQLitePCLRaw.core|3.0.5|Apache-2.0|
 |SQLitePCLRaw.provider.e_sqlite3|3.0.5|Apache-2.0|
-|System.Formats.Cbor|8.0.0|MIT|
+|System.Formats.Cbor|8.0.2|MIT|
 |System.IO.Packaging|8.0.1|MIT|
 |System.Numerics.Tensors|9.0.0|MIT|
 |ZstdSharp.Port|0.8.8|MIT|
@@ -43,5 +44,6 @@ Inno Setup 6.7.4：仅构建工具，许可证见 tools/InnoSetup/；不作为�
 Eclipse Temurin 21.0.13+9: GPL-2.0 WITH Classpath-exception-2.0. The bundled Java runtime is produced with jlink from the verified Temurin JDK. The legal/ directory and NOTICE for included modules are retained under runtime/java/.
 Upstream binaries and source provenance: https://github.com/adoptium/temurin21-binaries/releases/tag/jdk-21.0.13%2B9
 EPUBCheck licenses and third-party notices are retained under runtime/epubcheck/.
+PdfPig license and upstream notices: docs/licenses/PdfPig-0.1.16-LICENSE.txt and docs/licenses/PdfPig-0.1.16-NOTICES.txt.
 LXGW WenKai Mono Light: bundled user-provided LXGWWenKaiMono-Light.ttf. SIL Open Font License 1.1; see docs/licenses/LXGWWenKai-OFL.txt. Upstream: https://github.com/lxgw/LxgwWenKai
 

@@ -11,6 +11,12 @@ using W=DocumentFormat.OpenXml.Wordprocessing;
 namespace CatTransform.Documents;
 
 internal static class PackageFormats {
+ private static string BundledRuntime=>Path.Combine(AppContext.BaseDirectory,"runtime");
+ private static string OptionalRuntime=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"catTransform","components","epub","runtime");
+ private static string? CompleteRuntime=>new[]{BundledRuntime,OptionalRuntime}.FirstOrDefault(root=>File.Exists(Path.Combine(root,"epubcheck","epubcheck.jar"))&&File.Exists(Path.Combine(root,"java","bin","java.exe")));
+ private static string CheckerPath=>Path.Combine(CompleteRuntime??BundledRuntime,"epubcheck","epubcheck.jar");
+ private static string JavaPath=>CompleteRuntime is {} root?Path.Combine(root,"java","bin","java.exe"):"java";
+ public static bool HasLocalEpubRuntime=>CompleteRuntime is not null;
  public static void Docx(string source,string destination,Func<string,string,string> convert,Scope scope,CancellationToken ct) {
   using(var archive=ZipFile.OpenRead(source))CheckArchive(archive);
   File.Copy(source,destination,false);
@@ -23,10 +29,9 @@ internal static class PackageFormats {
    ct.ThrowIfCancellationRequested();
    // Merge only consecutive plain runs. Fields, hyperlinks, breaks, drawings are boundaries.
    var group=new List<W.Text>();
-   void Flush(){if(group.Count==0)return;var before=string.Concat(group.Select(t=>t.Text));var after=convert(before,region);
-    // A length-changing phrase cannot be mapped back to differently styled runs safely.
-    if(after.Length!=before.Length&&group.Count>1)throw new InvalidDataException("DOCX 跨 run 转换改变长度，无法可靠保持字符格式");
-    int offset=0;for(int k=0;k<group.Count;k++){var t=group[k];var length=group.Count==1?after.Length:t.Text.Length;t.Text=after.Substring(offset,length);t.Space=SpaceProcessingModeValues.Preserve;offset+=length;}group.Clear();}
+   void Flush(){if(group.Count==0)return;
+    var parts=SegmentedText.Convert(group.Select(t=>t.Text).ToArray(),s=>convert(s,region),"DOCX");
+    for(int k=0;k<group.Count;k++){group[k].Text=parts[k];group[k].Space=SpaceProcessingModeValues.Preserve;}group.Clear();}
    foreach(var child in paragraph.ChildElements){
     if(child is W.Run run&&run.ChildElements.All(e=>e is W.RunProperties or W.Text)&&!run.Ancestors<W.DeletedRun>().Any()){
      if(!scope.DocxTextBoxes&&run.Ancestors<W.TextBoxContent>().Any()){Flush();continue;}group.AddRange(run.Elements<W.Text>());
@@ -44,7 +49,7 @@ internal static class PackageFormats {
   foreach(var e in zip.Entries)if(e.FullName.Contains('\\')||e.FullName.StartsWith('/')||e.FullName.Split('/').Contains("..")||!names.Add(e.FullName))throw new InvalidDataException("压缩包含危险或重复路径");
  }
  public static async Task EpubAsync(string source,string destination,Func<string,string,string> convert,ConversionOptions options,CancellationToken ct){
-  var checker=options.EpubCheckJar??Path.Combine(AppContext.BaseDirectory,"runtime","epubcheck","epubcheck.jar");
+  var checker=options.EpubCheckJar??CheckerPath;
   if(!File.Exists(checker))throw new InvalidDataException("EPUB 转换需要本地 EPUBCheck JAR；请在设置中配置，未验证时不提交输出");
   using(var input=ZipFile.OpenRead(source)){
    CheckArchive(input);
@@ -70,20 +75,34 @@ internal static class PackageFormats {
     var targeted=targets.TryGetValue(entry.FullName,out var nav);
     if(isPackage||targeted&&(!nav||options.Scope.EpubNavigation)){
      var xml=Xml(entry);
-     foreach(var text in xml.DescendantNodes().OfType<XText>().ToArray()){
-      if(text.Ancestors().Any(e=>e.Name.LocalName is "script" or "style" or "code" or "pre"))continue;
-      bool allowed=isPackage?text.Parent?.Name.NamespaceName=="http://purl.org/dc/elements/1.1/"&&text.Parent.Name.LocalName is "title" or "creator" or "description" or "subject" or "publisher":text.Ancestors().Any(e=>e.Name.LocalName is "body" or "navLabel" or "docTitle");
-      if(allowed&&!string.IsNullOrWhiteSpace(text.Value))text.Value=convert(text.Value,isPackage?"metadata":nav?"navigation":"body");
-     }
+     ConvertEpubXml(xml,isPackage,nav,convert);
      using var writer=XmlWriter.Create(dest,new(){Encoding=new UTF8Encoding(false),CloseOutput=false,Indent=false});xml.Save(writer);
     }else{using var src=entry.Open();await src.CopyToAsync(dest,ct);}
    }
   }
   await ValidateEpubAsync(destination,checker,ct);
  }
+ private static void ConvertEpubXml(XDocument xml,bool isPackage,bool navigation,Func<string,string,string> convert){
+  var region=isPackage?"metadata":navigation?"navigation":"body";
+  bool Eligible(XText text){
+   if(text.Ancestors().Any(e=>e.Name.LocalName is "script" or "style" or "code" or "pre"))return false;
+   return isPackage?text.Parent?.Name.NamespaceName=="http://purl.org/dc/elements/1.1/"&&text.Parent.Name.LocalName is "title" or "creator" or "description" or "subject" or "publisher":text.Ancestors().Any(e=>e.Name.LocalName is "body" or "navLabel" or "docTitle");
+  }
+  var done=new HashSet<XText>();
+  void Apply(XText[] nodes){
+   if(nodes.Length==0||nodes.All(n=>string.IsNullOrWhiteSpace(n.Value)))return;
+   var parts=SegmentedText.Convert(nodes.Select(n=>n.Value).ToArray(),s=>convert(s,region),"EPUB");
+   for(int i=0;i<nodes.Length;i++){nodes[i].Value=parts[i];done.Add(nodes[i]);}
+  }
+  if(!isPackage){
+   var blocks=new HashSet<string>(StringComparer.Ordinal){"p","h1","h2","h3","h4","h5","h6","li","td","th","blockquote","figcaption","navLabel","docTitle"};
+   foreach(var block in xml.Descendants().Where(e=>blocks.Contains(e.Name.LocalName)).OrderByDescending(e=>e.Ancestors().Count()))
+    Apply(block.DescendantNodes().OfType<XText>().Where(t=>!done.Contains(t)&&Eligible(t)).ToArray());
+  }
+  foreach(var text in xml.DescendantNodes().OfType<XText>().Where(t=>!done.Contains(t)&&Eligible(t)).ToArray())Apply([text]);
+ }
  public static async Task ValidateEpubAsync(string path,string jar,CancellationToken ct){
-  var bundledJava=Path.Combine(AppContext.BaseDirectory,"runtime","java","bin","java.exe");
-  var start=new ProcessStartInfo(File.Exists(bundledJava)?bundledJava:"java"){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};start.ArgumentList.Add("-Xmx512m");start.ArgumentList.Add("-jar");start.ArgumentList.Add(jar);start.ArgumentList.Add(path);
+  var start=new ProcessStartInfo(JavaPath){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};start.ArgumentList.Add("-Xmx512m");start.ArgumentList.Add("-jar");start.ArgumentList.Add(jar);start.ArgumentList.Add(path);
   using var process=Process.Start(start)??throw new IOException("无法启动 EPUBCheck");
   var stdout=process.StandardOutput.ReadToEndAsync(ct);var stderr=process.StandardError.ReadToEndAsync(ct);
   using var timeout=CancellationTokenSource.CreateLinkedTokenSource(ct);timeout.CancelAfter(TimeSpan.FromMinutes(2));

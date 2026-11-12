@@ -1,7 +1,8 @@
 using CatTransform.Core;
 namespace CatTransform.Documents;
 public sealed class DocumentConverter(ITextConverter converter) : IDocumentConverter {
- public static readonly string[] Extensions=[".txt",".md",".srt",".ass",".csv",".json",".docx",".epub"];
+ public static bool EpubModuleAvailable=>PackageFormats.HasLocalEpubRuntime;
+ public static readonly string[] Extensions=[".txt",".md",".srt",".ass",".csv",".json",".docx",".epub",".pdf"];
  public async Task ConvertAsync(string source,string destination,ConversionOptions options,CancellationToken ct){
   ct.ThrowIfCancellationRequested();if(new FileInfo(source).Length>options.MaxInputBytes)throw new InvalidDataException("文件超过配置的大小限制");
   string format=Path.GetExtension(source).ToLowerInvariant().TrimStart('.');
@@ -11,6 +12,13 @@ public sealed class DocumentConverter(ITextConverter converter) : IDocumentConve
    return result;}
   if(format=="docx"){PackageFormats.Docx(source,destination,Convert,options.Scope,ct);return;}
   if(format=="epub"){await PackageFormats.EpubAsync(source,destination,Convert,options,ct);return;}
+  if(format=="pdf"){
+   var extracted=PdfText.Extract(source,ct);
+   var pdfResult=Convert(extracted,"body");
+   if(options.PdfOutput==PdfOutputKind.Text)await File.WriteAllTextAsync(destination,pdfResult,new System.Text.UTF8Encoding(false),ct);
+   else await PdfText.WritePdfAsync(destination,pdfResult,ct);
+   return;
+  }
   var input=await EncodedText.ReadAsync(source,ct);
   var result=format switch{
    "txt"=>Convert(input.Text,"body"),"md"=>PlainFormats.MarkdownText(input.Text,Convert,options.Scope),
@@ -21,6 +29,7 @@ public sealed class DocumentConverter(ITextConverter converter) : IDocumentConve
  }
  public async Task<string> ExtractAsync(string source,ConversionOptions options,CancellationToken ct){
   if(new FileInfo(source).Length>options.MaxInputBytes)throw new InvalidDataException("预览文件超过大小限制");
+  if(Path.GetExtension(source).Equals(".pdf",StringComparison.OrdinalIgnoreCase))return await Task.Run(()=>PdfText.Extract(source,ct),ct);
   if(Path.GetExtension(source).ToLowerInvariant() is ".docx" or ".epub")return await Task.Run(()=>PackageFormats.Extract(source),ct);
   return (await EncodedText.ReadAsync(source,ct)).Text;
  }

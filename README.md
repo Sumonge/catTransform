@@ -1,10 +1,12 @@
-# catTransform v0.1
+# catTransform v0.2（开发中）
 
 Windows 11 x64 离线中文简繁及地区词汇转换器。C# / .NET 10 / WinUI 3。
 
-**可运行验证构建，尚未完成全部系统级 v0.1 验收。** 详见 [进度](DEVELOPMENT_PROGRESS.md)、[技术验证](TECHNICAL_VALIDATION.md)、[使用说明](docs/USER_GUIDE.md)和[架构](docs/ARCHITECTURE.md)。
+Windows 11 x64 离线简繁与地区词汇转换器。v0.2 增加可提取文字的 PDF 输入，并改进 DOCX、EPUB 文本片段处理。详见 [升级报告](docs/V0.2_REPORT.md)、[使用说明](docs/USER_GUIDE.md)和[架构](docs/ARCHITECTURE.md)。
 
-运行 `artifacts/release/catTransform.exe`，请保留整个目录。安装包输出位置为 `artifacts/installer/catTransform-0.1.1-win-x64.exe`。发行目录包含 .NET、Windows App SDK、Java 和 EPUBCheck；使用时不需要联网下载运行时。
+运行 `artifacts/release/catTransform.exe` 时请保留整个目录。构建脚本输出三个安装包：`catTransform-0.2.0-win-x64-lite.exe`、`catTransform-0.2.0-win-x64-full.exe` 和 `catTransform-0.2.0-epub-addon-win-x64.exe`，均位于 `artifacts/installer`。精简版不含 Java/EPUBCheck；可离线安装 EPUB 组件包解锁 EPUB，或直接使用完整版。转换本身不需要联网。
+
+PDF 输入会提取可选择的文字，默认生成可搜索的文字重排版 PDF，也可在设置中选择 UTF-8 TXT；不保留原 PDF 排版、图片或批注，也不支持扫描件 OCR。
 
 ## 构建
 需要 .NET SDK 10.0.300、Windows SDK 26100 与 Visual Studio Windows 应用开发工具。

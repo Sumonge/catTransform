@@ -4,7 +4,8 @@ namespace CatTransform.Application;
 public sealed record Preview(string Original,string Converted);
 public sealed class PreviewService(IDocumentConverter documents) {
  public async Task<Preview> CreateAsync(string path,ConversionOptions options,CancellationToken ct){
-  var temp=Path.Combine(Path.GetTempPath(),"catTransform-preview-"+Guid.NewGuid()+Path.GetExtension(path));
+  var extension=Path.GetExtension(path).Equals(".pdf",StringComparison.OrdinalIgnoreCase)&&options.PdfOutput==PdfOutputKind.Text?".txt":Path.GetExtension(path);
+  var temp=Path.Combine(Path.GetTempPath(),"catTransform-preview-"+Guid.NewGuid()+extension);
   try{await documents.ConvertAsync(path,temp,options,ct);return new(Sample(await documents.ExtractAsync(path,options,ct)),Sample(await documents.ExtractAsync(temp,options,ct)));}
   finally{if(File.Exists(temp))File.Delete(temp);}
  }

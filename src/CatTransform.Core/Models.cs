@@ -5,6 +5,7 @@ namespace CatTransform.Core;
 public enum JobState { Waiting, Running, Succeeded, Failed, Cancelled, Skipped }
 public enum RuleKind { Replace, Protect, Regex }
 public enum RuleStage { Before, After }
+public enum PdfOutputKind { Pdf, Text }
 public sealed record Rule {
  public Guid Id {get;init;} = Guid.NewGuid();
  public string Name {get;init;} = "新规则";
@@ -42,7 +43,8 @@ public sealed record ConversionOptions {
  public int Concurrency {get;init;} = 2;
  public string OutputDirectory {get;init;} = "";
  public string? EpubCheckJar {get;init;}
- public string[] Formats {get;init;} = ["txt","md","srt","ass","csv","json","docx","epub"];
+ public PdfOutputKind PdfOutput {get;init;} = PdfOutputKind.Pdf;
+ public string[] Formats {get;init;} = ["txt","md","srt","ass","csv","json","docx","epub","pdf"];
  public long MaxInputBytes {get;init;} = 128 * 1024 * 1024;
 }
 public sealed record Settings {
@@ -68,7 +70,7 @@ public sealed class FileJob : INotifyPropertyChanged {
  public event PropertyChangedEventHandler? PropertyChanged;
  private void Changed([CallerMemberName]string? name=null)=>PropertyChanged?.Invoke(this,new(name));
 }
-public sealed record HistoryRecord(Guid BatchId,Guid FileId,DateTimeOffset Started,DateTimeOffset Finished,string Config,string RulesJson,JobState State,string? SourcePath,string? OutputPath,string? Error,string Version="0.1.0");
+public sealed record HistoryRecord(Guid BatchId,Guid FileId,DateTimeOffset Started,DateTimeOffset Finished,string Config,string RulesJson,JobState State,string? SourcePath,string? OutputPath,string? Error,string Version="0.2.0");
 public sealed record TraceEntry(Guid RuleId,RuleStage Stage,bool Changed);
 public interface ITextConverter {
  void Validate(ConversionOptions options);
